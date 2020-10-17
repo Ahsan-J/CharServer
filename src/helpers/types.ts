@@ -7,6 +7,14 @@ export interface IChatMessageRecord {
   status?: number;
 }
 
+export interface IChatConversationRecord {
+  senderId: string;
+  receiverId: string;
+  message?: string;
+  time?: string;
+  messageId?: string;
+}
+
 export interface IUserSocketRecord {
   type?: string;
   userId: string;
