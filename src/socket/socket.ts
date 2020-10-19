@@ -67,6 +67,11 @@ export const connectWithSocket = (appCallback: http.RequestListener): http.Serve
 
 export const registerSocketRoutes = () => {
 
+  router.get("/", async ctx => {
+    ctx.status = 200;
+    ctx.body = "Success"
+  })
+
   router.post('/chat/send', async ctx => {
     const data: IChatMessageRecord = ctx.request?.body;
     

@@ -2,11 +2,11 @@
   "name": "user_module",
   "version": "1.0.0",
   "description": "",
-  "main": "src/server.ts",
+  "main": "build/index.js",
   "scripts": {
-    "start": ".\\node_modules\\.bin\\ts-node src/server.ts",
+    "start": ".\\node_modules\\.bin\\ts-node build/index.js",
     "debug": ".\\node_modules\\.bin\\tsc",
-    "dev": ".\\node_modules\\.bin\\nodemon --exec ts-node src/server.ts",
+    "dev": ".\\node_modules\\.bin\\nodemon --exec ts-node build/index.js",
     "test": ".\\node_modules\\.bin\\jest"
   },
   "dependencies": {
