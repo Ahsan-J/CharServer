@@ -14,7 +14,7 @@ app.use(bodyParser());
 app.use(registerSocketRoutes().routes());
 app.use(registerSocketRoutes().allowedMethods());
 
-connectWithSocket(app.callback()).listen("0.0.0.0/0", async ()=> {
+connectWithSocket(app.callback()).listen(parseInt(port), async ()=> {
   await initDynamoDB();
   console.log("Listening at port ", port);
 });
