@@ -17,7 +17,7 @@ let io: socketIO.Server;
 
 export const connectWithSocket = (appCallback: http.RequestListener): http.Server => {
   const serverWithSocket = http.createServer(appCallback)
-  io = socketIO(serverWithSocket, { transports: ['websocket'], pingTimeout: 5000 })
+  io = socketIO(serverWithSocket, { transports: ["polling", "websocket"], pingTimeout: 5000 })
 
   client = io.of(socketNamespace);
 

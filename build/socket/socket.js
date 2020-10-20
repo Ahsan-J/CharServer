@@ -20,7 +20,7 @@ let client;
 let io;
 exports.connectWithSocket = (appCallback) => {
     const serverWithSocket = http_1.default.createServer(appCallback);
-    io = socket_io_1.default(serverWithSocket, { transports: ['websocket'], pingTimeout: 5000 });
+    io = socket_io_1.default(serverWithSocket, { transports: ["polling", "websocket"], pingTimeout: 5000 });
     client = io.of(regex_1.socketNamespace);
     client.on('connection', async (socket) => {
         const phId = lodash_1.default.split(socket.nsp.name, '-')[1];

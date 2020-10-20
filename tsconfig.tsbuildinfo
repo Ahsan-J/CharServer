@@ -2032,7 +2032,7 @@
         "affectsGlobalScope": false
       },
       "./src/socket/socket.ts": {
-        "version": "7375be2464e8d89f625af7ab4e108437887549a7cbfaa9d1a51208772eb85358",
+        "version": "77a1924e5a3c9a4a7da0ac31028671d80afe8e096eaaf3f4ed1742e758a6afd2",
         "signature": "d92b9d447c7c74a1df32b418819b533512c2b0e113bd4c08f99b822119e74e3d",
         "affectsGlobalScope": false
       },
