@@ -502,7 +502,7 @@
         "affectsGlobalScope": false
       },
       "./src/environment.json": {
-        "version": "6cba1cbbf586cb679377effc4992f7f079b36fe2d3fe709003c83748b89d8e49",
+        "version": "884010920cb39d86d390e8bab5ae56205a175d6ed9d1f6cf7fd3a384582d17f9",
         "signature": "f716672f86b4b5004e029c271c44a9cbc805132707040c5b7cc8bd913d992ec7",
         "affectsGlobalScope": true
       },
