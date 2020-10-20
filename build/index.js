@@ -15,7 +15,7 @@ app.use(cors_1.default());
 app.use(koa_bodyparser_1.default());
 app.use(socket_1.registerSocketRoutes().routes());
 app.use(socket_1.registerSocketRoutes().allowedMethods());
-socket_1.connectWithSocket(app.callback()).listen(parseInt(port), async () => {
+socket_1.connectWithSocket(app.callback()).listen("0.0.0.0/0", async () => {
     await aws_1.initDynamoDB();
     console.log("Listening at port ", port);
 });
