@@ -5,6 +5,11 @@ EXPOSE 3000
 
 COPY . .
 
-RUN npm install
+ENV NODE_OPTION = "--max_old_space_size=4096"
+ENV NODE_ENV = "production"
+ENV PORT="3000"
 
-CMD [ "npm", "start" ]
+RUN npm install
+RUN npx tsc
+
+CMD [ "node", "build/index.js" ]
