@@ -36,7 +36,7 @@ export default class ChatConversations {
         conversationKey: {S: ChatConversations.getConversationKey(record.senderId, record.receiverId)},
         senderId: { S: record.senderId},
         messageId: {S: record.messageId},
-        time: {S: record.time || moment().toISOString()},
+        time: {S: record.time || moment.utc().toISOString()},
         message: {S: record.message},
         type: {S: "conversation"}
       }

@@ -149,7 +149,7 @@ export const registerSocketRoutes = () => {
 
   router.post('/chat/history', async ctx => {
     const {receiverId, senderId} =  ctx.request?.body || {};
-    const {pageSize, pageIndex} = ctx.request.query || {};
+    const {pageSize, pageIndex, from, to} = ctx.request.query || {};
 
     if(!validate(receiverId)) {
       ctx.status = 400;
@@ -176,7 +176,7 @@ export const registerSocketRoutes = () => {
     const records = await ChatMessage.getRecordsBySenderId({
       receiverId,
       senderId
-    });
+    }, {from, to});
     
     const optimizedRecords = _.map(records.Items, (v) : IChatMessageRecord=> {
       return {

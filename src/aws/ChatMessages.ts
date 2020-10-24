@@ -83,14 +83,14 @@ export default class ChatMessage {
         receiverId: { S: record.receiverId},
         senderId: {S: record.senderId},
         message: {S: record.message},
-        time: {S: record.time || moment().toISOString()},
+        time: {S: record.time || moment.utc().toISOString()},
         status: {S: `${record.status || setUnread()}`}
       }
     }
     return db.putItem(params).promise();
   }
 
-  static getRecordsBySenderId = (record: IChatMessageRecord) => {
+  static getRecordsBySenderId = (record: IChatMessageRecord, filters? : {from : string, to :string}) => {
 
     const params : aws.DynamoDB.QueryInput = {
       TableName: ChatMessage.ChatTableInput.TableName,
@@ -106,6 +106,33 @@ export default class ChatMessage {
       },
       ScanIndexForward: true,
     }
+
+    if(filters?.from) {
+      params.FilterExpression = "#timeFrom >= :timeFrom";
+      params.ExpressionAttributeNames = {
+        ...params.ExpressionAttributeNames,
+        ['#timeFrom'] : "time"
+      }
+      params.ExpressionAttributeValues = {
+        ...params.ExpressionAttributeValues,
+        "#timeFrom": { S : filters.from}
+      }
+    }
+
+    if(filters?.to) {
+      if(params.FilterExpression && params.FilterExpression?.length > 0) { params.FilterExpression += " AND " } 
+      params.FilterExpression = "#timeTo >= :timeTo";
+      params.ExpressionAttributeNames = {
+        ...params.ExpressionAttributeNames,
+        ['#timeTo'] : "time"
+      }
+      params.ExpressionAttributeValues = {
+        ...params.ExpressionAttributeValues,
+        "#timeTo": { S : filters.to}
+      }
+    }
+
+    console.log("Query Params", params)
 
     return db.query(params).promise();
   }
