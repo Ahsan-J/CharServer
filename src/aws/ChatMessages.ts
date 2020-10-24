@@ -115,24 +115,25 @@ export default class ChatMessage {
       }
       params.ExpressionAttributeValues = {
         ...params.ExpressionAttributeValues,
-        "#timeFrom": { S : filters.from}
+        ":timeFrom": { S : filters.from}
       }
     }
 
     if(filters?.to) {
-      if(params.FilterExpression && params.FilterExpression?.length > 0) { params.FilterExpression += " AND " } 
-      params.FilterExpression = "#timeTo >= :timeTo";
+      if(params.FilterExpression && params.FilterExpression?.length > 0) { 
+        params.FilterExpression += " AND #timeTo >= :timeTo" 
+      } else {
+        params.FilterExpression = "#timeTo >= :timeTo";
+      } 
       params.ExpressionAttributeNames = {
         ...params.ExpressionAttributeNames,
         ['#timeTo'] : "time"
       }
       params.ExpressionAttributeValues = {
         ...params.ExpressionAttributeValues,
-        "#timeTo": { S : filters.to}
+        ":timeTo": { S : filters.to}
       }
     }
-
-    console.log("Query Params", params)
 
     return db.query(params).promise();
   }

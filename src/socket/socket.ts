@@ -2,12 +2,13 @@ import http from 'http';
 import socketIO from 'socket.io';
 import _ from 'lodash';
 import Router from '@koa/router';
+import moment from 'moment';
+import shortid from 'shortid';
 import { IApiResponse, IChatConversationRecord, IChatMessageRecord } from '../helpers/types';
 import UserSocket from '../aws/UserSocket';
 import ChatMessage from '../aws/ChatMessages';
 import { isRead, setRead, setUnread, unsetUnread } from '../helpers/chatStatus';
 import ChatConversations from '../aws/ChatConversation';
-import shortid from 'shortid';
 import { socketNamespace } from '../helpers/regex';
 import { validate } from '../helpers/utility';
 
@@ -173,10 +174,15 @@ export const registerSocketRoutes = () => {
       return ctx.body = response
     }
 
+    const options = {
+      from : from && moment(from, moment.ISO_8601, true).isValid() ? from : undefined,
+      to: to && moment(to, moment.ISO_8601, true).isValid() ? to : undefined
+    }
+
     const records = await ChatMessage.getRecordsBySenderId({
       receiverId,
       senderId
-    }, {from, to});
+    }, options);
     
     const optimizedRecords = _.map(records.Items, (v) : IChatMessageRecord=> {
       return {
