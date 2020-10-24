@@ -13,6 +13,7 @@ export interface IChatConversationRecord {
   message?: string;
   time?: string;
   messageId?: string;
+  status?: number;
 }
 
 export interface IUserSocketRecord {
@@ -20,6 +21,7 @@ export interface IUserSocketRecord {
   userId: string;
   socketId?: string;
   status?: number;
+  time?: string;
 }
 
 export interface IApiResponse<type = any> {

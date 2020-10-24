@@ -5,7 +5,7 @@ import Router from '@koa/router';
 import moment from 'moment';
 import shortid from 'shortid';
 import { IApiResponse, IChatConversationRecord, IChatMessageRecord } from '../helpers/types';
-import UserSocket from '../aws/UserSocket';
+import UserSocket from '../redis';
 import ChatMessage from '../aws/ChatMessages';
 import { isRead, setRead, setUnread, unsetUnread } from '../helpers/chatStatus';
 import ChatConversations from '../aws/ChatConversation';
@@ -26,12 +26,32 @@ export const connectWithSocket = (appCallback: http.RequestListener): http.Serve
     const phId = _.split(socket.nsp.name, '-')[1];
     
     if (phId == socket.handshake.query.myNumber) {
-      UserSocket.createRecord({userId: phId, socketId: socket.id}).catch(err => console.log(err));
+      
+      await UserSocket.set({
+        userId: phId, 
+        socketId: socket.id, 
+        time: moment.utc().toISOString()
+      }).catch(err => console.log(err));
+    
+    } else {
+      socket.emit("connect_error")
+      socket.disconnect()
     }
+    
+    client.emit('user-status', {
+      userId: phId,
+      status: 1,
+      time: moment.utc().toISOString()
+    })
 
     socket.on('disconnect', () => {
       // delete socket bindings to clean database
-      UserSocket.deleteRecord({userId: phId}).catch(err => console.log(err));
+      UserSocket.del(phId).catch(err => console.log(err));
+      client.emit('user-status', {
+        userId: phId,
+        status: 2,
+        time: moment.utc().toISOString()
+      });
     })
 
     // send all the stored messages via socket
@@ -110,7 +130,7 @@ export const registerSocketRoutes = () => {
     }
 
     try {
-      const socketId: string = (await UserSocket.getRecord({userId: data.receiverId})).Item?.socketId.S  || "";
+      const socketId: string = (await UserSocket.get( data.receiverId)).socketId || "";
       const socketNamespace = _.first(_.split(socketId, '#')) || '';
       let status = setUnread();
       data.id = shortid.generate();
@@ -226,9 +246,11 @@ export const registerSocketRoutes = () => {
     }
 
     const records = await ChatConversations.getRecordsById(id);
+    const onlineSockets = await await UserSocket.getAll()
     
     const data: Array<IChatConversationRecord> = _.map(records.Items, (v) : IChatConversationRecord=> {
       const [tempSenderId, tempReceiverId] = ChatConversations.getIdFromConverationKey(v.conversationKey.S || "")
+      const otherId = id?.trim().toLowerCase() == `${v.senderId.S}`.trim().toLowerCase() ? tempReceiverId : `${v.senderId.S}`      
       
       return {
         senderId: v.senderId.S || "",
@@ -236,6 +258,7 @@ export const registerSocketRoutes = () => {
         message: v.message.S || "",
         time: v.time.S || "",
         messageId: v.messageId.S || "",
+        status: onlineSockets[otherId] ? 1 : 2
       }
     })
 
