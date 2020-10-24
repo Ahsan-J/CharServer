@@ -4,8 +4,8 @@ import _ from 'lodash';
 import Router from '@koa/router';
 import moment from 'moment';
 import shortid from 'shortid';
-import { IApiResponse, IChatConversationRecord, IChatMessageRecord } from '../helpers/types';
-import UserSocket from '../redis';
+import { IApiResponse, IChatConversationRecord, IChatMessageRecord, IUserSocketRecord } from '../helpers/types';
+import UserSocket from '../aws/UserSocket';
 import ChatMessage from '../aws/ChatMessages';
 import { isRead, setRead, setUnread, unsetUnread } from '../helpers/chatStatus';
 import ChatConversations from '../aws/ChatConversation';
@@ -27,7 +27,7 @@ export const connectWithSocket = (appCallback: http.RequestListener): http.Serve
     
     if (phId == socket.handshake.query.myNumber) {
       
-      await UserSocket.set({
+      await UserSocket.createRecord({
         userId: phId, 
         socketId: socket.id, 
         time: moment.utc().toISOString()
@@ -46,7 +46,7 @@ export const connectWithSocket = (appCallback: http.RequestListener): http.Serve
 
     socket.on('disconnect', () => {
       // delete socket bindings to clean database
-      UserSocket.del(phId).catch(err => console.log(err));
+      UserSocket.deleteRecord({userId: phId}).catch(err => console.log(err));
       client.emit('user-status', {
         userId: phId,
         status: 2,
@@ -130,7 +130,7 @@ export const registerSocketRoutes = () => {
     }
 
     try {
-      const socketId: string = (await UserSocket.get( data.receiverId)).socketId || "";
+      const socketId: string = (await UserSocket.getRecord({userId: data.receiverId})).Item?.socketId.S || "";
       const socketNamespace = _.first(_.split(socketId, '#')) || '';
       let status = setUnread();
       data.id = shortid.generate();
@@ -246,7 +246,14 @@ export const registerSocketRoutes = () => {
     }
 
     const records = await ChatConversations.getRecordsById(id);
-    const onlineSockets = await await UserSocket.getAll()
+    const connectedSockets = await UserSocket.getAllRecords()
+    const onlineSockets = _.keyBy(_.map(connectedSockets.Items, (v) : IUserSocketRecord=> {
+      return {
+        userId: `${v.userId.S}`,
+        socketId: v.socketId.S,
+        time: v.time.S,
+      }
+    }), "userId")
     
     const data: Array<IChatConversationRecord> = _.map(records.Items, (v) : IChatConversationRecord=> {
       const [tempSenderId, tempReceiverId] = ChatConversations.getIdFromConverationKey(v.conversationKey.S || "")
