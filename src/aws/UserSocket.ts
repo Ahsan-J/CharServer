@@ -53,7 +53,7 @@ export default class UserSocket {
     return db.deleteItem(params).promise();
   }
 
-  static getRecord = (record: IUserSocketRecord) => {
+  static getRecord = async (record: IUserSocketRecord) => {
     const params: aws.DynamoDB.DeleteItemInput =  {
       TableName: UserSocket.UserTableInput.TableName,
       Key: {
@@ -62,6 +62,13 @@ export default class UserSocket {
       }
     }
     return db.getItem(params).promise();
+  }
+
+  static getAllRecords = () => {
+    const params: aws.DynamoDB.ScanInput =  {
+      TableName: UserSocket.UserTableInput.TableName
+    }
+    return db.scan(params).promise();
   }
 
 }
