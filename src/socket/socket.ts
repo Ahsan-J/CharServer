@@ -23,7 +23,7 @@ export const connectWithSocket = (appCallback: http.RequestListener): http.Serve
   client = io.of(socketNamespace);
 
   client.on('connection', async socket => {
-    const phId = _.split(socket.nsp.name, '$')[1];
+    const phId = _.split(socket.nsp.name, 'socketid-')[1];
     
     if (phId == socket.handshake.query.myNumber) {
       
