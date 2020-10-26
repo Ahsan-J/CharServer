@@ -4,7 +4,7 @@ import _ from 'lodash';
 import Router from '@koa/router';
 import moment from 'moment';
 import shortid from 'shortid';
-import { IApiResponse, IChatConversationRecord, IChatMessageRecord, IUserSocketRecord } from '../helpers/types';
+import { IApiResponse, IChatConversationRecord, IChatMessageRecord, IUserSocketRecord, IUserTypingData } from '../helpers/types';
 import UserSocket from '../aws/UserSocket';
 import ChatMessage from '../aws/ChatMessages';
 import { isRead, setRead, setUnread, unsetUnread } from '../helpers/chatStatus';
@@ -45,13 +45,19 @@ export const connectWithSocket = (appCallback: http.RequestListener): http.Serve
     })
 
     socket.on('disconnect', () => {
-      // delete socket bindings to clean database
-      UserSocket.deleteRecord({userId: phId}).catch(err => console.log(err));
+      // delete socket bindings
+      UserSocket.createRecord({userId: phId, socketId: ""}).catch(err => console.log(err));
       client.emit('user-status', {
         userId: phId,
         status: 2,
         time: moment.utc().toISOString()
       });
+    })
+
+    socket.on("user-typing-sender", async (data: IUserTypingData) => {
+      const socketId: string = (await UserSocket.getRecord({userId: data.receiverId})).Item?.socketId.S || "";
+      data.time = data.time || moment.utc().toISOString();
+      client.to(socketId).emit("user-typing-receiver", data)
     })
 
     // send all the stored messages via socket
@@ -224,7 +230,8 @@ export const registerSocketRoutes = () => {
       data = optimizedRecords
     }
 
-    
+    data.sort((a,b) => a.time?.localeCompare(b.time || "") || 0);
+
     const response: IApiResponse<Array<IChatMessageRecord>> = {
       status: 200,
       data,
@@ -265,10 +272,11 @@ export const registerSocketRoutes = () => {
         message: v.message.S || "",
         time: v.time.S || "",
         messageId: v.messageId.S || "",
-        status: onlineSockets[otherId] ? 1 : 2
+        status: onlineSockets[otherId]?.socketId ? 1 : 2,
+        lastStatus: onlineSockets[otherId]?.time || ""
       }
     })
-
+    data.sort((a,b) => a.time?.localeCompare(b.time || "") || 0);
     const response: IApiResponse<Array<IChatConversationRecord>> = {
       status: 200,
       data,

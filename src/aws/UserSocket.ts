@@ -36,7 +36,7 @@ export default class UserSocket {
         userId: { S: record.userId},
         type: {S: "user_socket"},
         socketId: {S: record.socketId},
-        time: {S: moment.utc().toISOString()}
+        time: {S: record.time || moment.utc().toISOString()}
       }
     }
     return db.putItem(params).promise();

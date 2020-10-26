@@ -7,6 +7,13 @@ export interface IChatMessageRecord {
   status?: number;
 }
 
+export interface IUserTypingData {
+  senderId: string;
+  receiverId: string;
+  status: boolean;
+  time: string;
+}
+
 export interface IChatConversationRecord {
   senderId: string;
   receiverId: string;
@@ -14,6 +21,7 @@ export interface IChatConversationRecord {
   time?: string;
   messageId?: string;
   status?: number;
+  lastStatus?: string;
 }
 
 export interface IUserSocketRecord {
