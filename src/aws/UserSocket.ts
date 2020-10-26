@@ -36,7 +36,10 @@ export default class UserSocket {
         userId: { S: record.userId},
         type: {S: "user_socket"},
         socketId: {S: record.socketId},
-        time: {S: record.time || moment.utc().toISOString()}
+        time: {S: record.time || moment.utc().toISOString()},
+        email: {S: record.email},
+        name: {S: record.name},
+        imageURL: {S: record.imageURL}
       }
     }
     return db.putItem(params).promise();

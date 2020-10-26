@@ -23,7 +23,6 @@ export default class RedisUserSocket {  // wrapping in promises
         })
     }
     static set = function (record: IUserSocketRecord)  : Promise<string> {
-        console.log(record)
         return new Promise<string>((resolve, reject) => {
             if(!record.userId) return resolve("");
             client.set(record.userId, JSON.stringify(record), (err, result) => {

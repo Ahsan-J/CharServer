@@ -23,18 +23,21 @@ export const connectWithSocket = (appCallback: http.RequestListener): http.Serve
   client = io.of(socketNamespace);
 
   client.on('connection', async socket => {
-    const phId = _.split(socket.nsp.name, '-')[1];
+    const phId = _.split(socket.nsp.name, '$')[1];
     
     if (phId == socket.handshake.query.myNumber) {
       
       await UserSocket.createRecord({
         userId: phId, 
         socketId: socket.id, 
-        time: moment.utc().toISOString()
+        time: moment.utc().toISOString(),
+        email: socket.handshake.query.email,
+        name: socket.handshake.query.name,
+        imageURL: socket.handshake.query.imageURL
       }).catch(err => console.log(err));
     
     } else {
-      socket.emit("connect_error")
+      socket.emit("connect_error", {error: "The query 'myNumber' has mismatch ID"})
       socket.disconnect()
     }
     
@@ -44,9 +47,9 @@ export const connectWithSocket = (appCallback: http.RequestListener): http.Serve
       time: moment.utc().toISOString()
     })
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
       // delete socket bindings
-      UserSocket.createRecord({userId: phId, socketId: ""}).catch(err => console.log(err));
+      await UserSocket.createRecord({userId: phId, socketId: ""}).catch(err => console.log(err));
       client.emit('user-status', {
         userId: phId,
         status: 2,
@@ -259,6 +262,9 @@ export const registerSocketRoutes = () => {
         userId: `${v.userId.S}`,
         socketId: v.socketId.S,
         time: v.time.S,
+        email: v.email.S,
+        name: v.name.S,
+        imageURL: v.imageURL.S,
       }
     }), "userId")
     
@@ -273,7 +279,10 @@ export const registerSocketRoutes = () => {
         time: v.time.S || "",
         messageId: v.messageId.S || "",
         status: onlineSockets[otherId]?.socketId ? 1 : 2,
-        lastStatus: onlineSockets[otherId]?.time || ""
+        lastStatusTime: onlineSockets[otherId]?.time || "",
+        email: onlineSockets[otherId]?.email || "",
+        name: onlineSockets[otherId]?.name || "",
+        imageURL: onlineSockets[otherId]?.imageURL || "",
       }
     })
     data.sort((a,b) => a.time?.localeCompare(b.time || "") || 0);

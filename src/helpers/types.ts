@@ -1,27 +1,30 @@
 export interface IChatMessageRecord {
   id?: string;
-  senderId?: string;
-  receiverId: string;
+  senderId?: IUserSocketRecord['userId'];
+  receiverId: IUserSocketRecord['userId'];
   message?: string;
   time?: string;
   status?: number;
 }
 
 export interface IUserTypingData {
-  senderId: string;
-  receiverId: string;
+  senderId: IUserSocketRecord['userId'];
+  receiverId: IUserSocketRecord['userId'];
   status: boolean;
   time: string;
 }
 
 export interface IChatConversationRecord {
-  senderId: string;
-  receiverId: string;
-  message?: string;
+  senderId: IUserSocketRecord['userId'];
+  receiverId: IUserSocketRecord['userId'];
+  message?: IChatMessageRecord['message'];
   time?: string;
-  messageId?: string;
-  status?: number;
-  lastStatus?: string;
+  messageId?: IChatMessageRecord['id'];
+  status?: IUserSocketRecord['status'];
+  lastStatusTime?: IUserSocketRecord['time'];
+  email?: IUserSocketRecord['email'];
+  name?: IUserSocketRecord['name'];
+  imageURL?: IUserSocketRecord['imageURL'];
 }
 
 export interface IUserSocketRecord {
@@ -30,6 +33,9 @@ export interface IUserSocketRecord {
   socketId?: string;
   status?: number;
   time?: string;
+  email?: string;
+  name?: string;
+  imageURL?: string;
 }
 
 export interface IApiResponse<type = any> {
