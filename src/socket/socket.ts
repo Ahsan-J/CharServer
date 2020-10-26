@@ -58,7 +58,7 @@ export const connectWithSocket = (appCallback: http.RequestListener): http.Serve
     })
 
     socket.on("user-typing-sender", async (data: IUserTypingData) => {
-      const socketId: string = (await UserSocket.getRecord({userId: data.receiverId})).Item?.socketId.S || "";
+      const socketId: string = (await UserSocket.getRecord({userId: data.receiverId})).Item?.socketId?.S || "";
       data.time = data.time || moment.utc().toISOString();
       client.to(socketId).emit("user-typing-receiver", data)
     })
@@ -74,8 +74,8 @@ export const connectWithSocket = (appCallback: http.RequestListener): http.Serve
           senderId: message.senderId.S || "",
           receiverId: message.receiverId.S || "",
           id: message.id.S || "",
-          message: message.message.S || "",
-          time : message.time.S || "",
+          message: message.message?.S || "",
+          time : message.time?.S || "",
           status: parseInt(message.status.S || "0"),
         }
 
@@ -139,7 +139,7 @@ export const registerSocketRoutes = () => {
     }
 
     try {
-      const socketId: string = (await UserSocket.getRecord({userId: data.receiverId})).Item?.socketId.S || "";
+      const socketId: string = (await UserSocket.getRecord({userId: data.receiverId})).Item?.socketId?.S || "";
       const socketNamespace = _.first(_.split(socketId, '#')) || '';
       let status = setUnread();
       data.id = shortid.generate();
@@ -260,11 +260,11 @@ export const registerSocketRoutes = () => {
     const onlineSockets = _.keyBy(_.map(connectedSockets.Items, (v) : IUserSocketRecord=> {
       return {
         userId: `${v.userId.S}`,
-        socketId: v.socketId.S,
-        time: v.time.S,
-        email: v.email.S,
-        name: v.name.S,
-        imageURL: v.imageURL.S,
+        socketId: v.socketId?.S,
+        time: v.time?.S,
+        email: v.email?.S,
+        name: v.name?.S,
+        imageURL: v.imageURL?.S,
       }
     }), "userId")
     
