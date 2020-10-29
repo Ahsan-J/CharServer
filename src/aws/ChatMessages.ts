@@ -92,10 +92,10 @@ export default class ChatMessage {
 
   static getRecordsBySenderId = (record: IChatMessageRecord, filters? : {from : string, to :string}) => {
 
-    const params : aws.DynamoDB.QueryInput = {
+    const params : aws.DynamoDB.ScanInput = {
       TableName: ChatMessage.ChatTableInput.TableName,
       IndexName: "ChatMessageBySenderId",
-      KeyConditionExpression: '#senderId = :senderId AND #receiverId = :receiverId',
+      FilterExpression: '(#senderId = :senderId AND #receiverId = :receiverId) OR (#senderId = :receiverId AND #receiverId = :senderId)',
       ExpressionAttributeNames: {
         "#senderId": "senderId",
         "#receiverId": "receiverId",
@@ -104,11 +104,14 @@ export default class ChatMessage {
         ":senderId": {S: record.senderId},
         ":receiverId": {S: record.receiverId}
       },
-      ScanIndexForward: true,
     }
 
     if(filters?.from) {
-      params.FilterExpression = "#timeFrom >= :timeFrom";
+      if(params.FilterExpression && params.FilterExpression?.length > 0) { 
+        params.FilterExpression += " AND #timeFrom >= :timeFrom" 
+      } else {
+        params.FilterExpression = "#timeFrom >= :timeFrom";
+      } 
       params.ExpressionAttributeNames = {
         ...params.ExpressionAttributeNames,
         ['#timeFrom'] : "time"
@@ -135,7 +138,7 @@ export default class ChatMessage {
       }
     }
 
-    return db.query(params).promise();
+    return db.scan(params).promise();
   }
 
   static getRecordsByReceiverId = (record: IChatMessageRecord) => {
