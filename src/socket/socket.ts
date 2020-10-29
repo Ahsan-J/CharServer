@@ -31,7 +31,6 @@ export const connectWithSocket = (appCallback: http.RequestListener): http.Serve
         userId: phId, 
         socketId: socket.id, 
         time: moment.utc().toISOString(),
-        email: socket.handshake.query.email,
         name: socket.handshake.query.name,
         imageURL: socket.handshake.query.imageURL
       }).catch(err => console.log(err));
@@ -262,7 +261,6 @@ export const registerSocketRoutes = () => {
         userId: `${v.userId.S}`,
         socketId: v.socketId?.S,
         time: v.time?.S,
-        email: v.email?.S,
         name: v.name?.S,
         imageURL: v.imageURL?.S,
       }
@@ -280,7 +278,6 @@ export const registerSocketRoutes = () => {
         messageId: v.messageId.S || "",
         status: onlineSockets[otherId]?.socketId ? 1 : 2,
         lastStatusTime: onlineSockets[otherId]?.time || "",
-        email: onlineSockets[otherId]?.email || "",
         name: onlineSockets[otherId]?.name || "",
         imageURL: onlineSockets[otherId]?.imageURL || "",
       }

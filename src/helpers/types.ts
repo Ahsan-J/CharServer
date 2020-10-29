@@ -22,7 +22,6 @@ export interface IChatConversationRecord {
   messageId?: IChatMessageRecord['id'];
   status?: IUserSocketRecord['status'];
   lastStatusTime?: IUserSocketRecord['time'];
-  email?: IUserSocketRecord['email'];
   name?: IUserSocketRecord['name'];
   imageURL?: IUserSocketRecord['imageURL'];
 }
@@ -33,7 +32,6 @@ export interface IUserSocketRecord {
   socketId?: string;
   status?: number;
   time?: string;
-  email?: string;
   name?: string;
   imageURL?: string;
 }

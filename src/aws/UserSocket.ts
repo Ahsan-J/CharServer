@@ -37,7 +37,6 @@ export default class UserSocket {
         type: {S: "user_socket"},
         socketId: {S: record.socketId},
         time: {S: record.time || moment.utc().toISOString()},
-        email: {S: record.email},
         name: {S: record.name},
         imageURL: {S: record.imageURL}
       }
